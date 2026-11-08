@@ -19,15 +19,18 @@ export default function WorkoutsPage() {
   const [filter, setFilter] = useState('all')
   const [busyId, setBusyId] = useState(null)
   const [actionError, setActionError] = useState('')
+  const [flash, setFlash] = useState('')
 
   const shown = (workouts || []).filter((w) => filter === 'all' || w.status === filter)
   const count = (key) => (workouts || []).filter((w) => key === 'all' || w.status === key).length
 
-  async function act(id, fn) {
+  async function act(id, fn, success) {
     setBusyId(id)
     setActionError('')
+    setFlash('')
     try {
       await fn()
+      setFlash(success)
     } catch (err) {
       setActionError(err.message)
     } finally {
@@ -39,14 +42,14 @@ export default function WorkoutsPage() {
     act(w.id, async () => {
       const updated = await workoutsApi.complete(w.id)
       setData((list) => list.map((x) => (x.id === w.id ? updated : x)))
-    })
+    }, `"${w.name}" marked as completed.`)
 
   const remove = (w) => {
     if (!window.confirm(`Delete "${w.name}"? Its exercises will be deleted too.`)) return
     act(w.id, async () => {
       await workoutsApi.remove(w.id)
       setData((list) => list.filter((x) => x.id !== w.id))
-    })
+    }, `"${w.name}" deleted.`)
   }
 
   return (
@@ -74,6 +77,7 @@ export default function WorkoutsPage() {
         </div>
 
         {actionError && <div style={{ marginBottom: 16 }}><Alert>{actionError}</Alert></div>}
+        {flash && <div style={{ marginBottom: 16 }}><Alert kind="success">{flash}</Alert></div>}
 
         {loading && !workouts ? (
           <Spinner />
