@@ -9,8 +9,15 @@ const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
-  // "loading" while we check a saved token, then "authenticated" or "guest"
+  // "loading" while we check a saved token, then "authenticated" or "guest".
+  // "offline" = we have a token but couldn't reach the server (don't log out for that).
   const [status, setStatus] = useState(() => (tokenStore.get() ? 'loading' : 'guest'))
+  const [checkError, setCheckError] = useState('')
+  const [checkTick, setCheckTick] = useState(0)
+  const retryCheck = useCallback(() => {
+    setStatus('loading')
+    setCheckTick((n) => n + 1)
+  }, [])
 
   const logout = useCallback(() => {
     tokenStore.clear()
@@ -34,13 +41,16 @@ export function AuthProvider({ children }) {
         setUser(me)
         setStatus('authenticated')
       })
-      .catch(() => {
-        if (!cancelled) logout()
+      .catch((err) => {
+        if (cancelled) return
+        if (err.status === 401) return logout() // token expired or invalid
+        setCheckError(err.message)
+        setStatus('offline')
       })
     return () => {
       cancelled = true
     }
-  }, [logout])
+  }, [logout, checkTick])
 
   const login = useCallback(async (email, password) => {
     const { access_token } = await authApi.login({ email, password })
@@ -57,8 +67,8 @@ export function AuthProvider({ children }) {
   }, [])
 
   const value = useMemo(
-    () => ({ user, status, login, logout, setUser }),
-    [user, status, login, logout],
+    () => ({ user, status, login, logout, setUser, checkError, retryCheck }),
+    [user, status, login, logout, checkError, retryCheck],
   )
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
