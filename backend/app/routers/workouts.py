@@ -143,3 +143,23 @@ def list_workout_exercises(
         .order_by(WorkoutExercise.id)
         .all()
     )
+
+
+# ---------- Complete ----------
+@router.post("/{workout_id}/complete", response_model=WorkoutResponse)
+def complete_workout(
+    workout_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Mark the user's workout as completed (only once)."""
+    workout = get_own_workout(workout_id, db, current_user)
+    if workout.status == "completed":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Workout is already completed",
+        )
+    workout.status = "completed"
+    db.commit()
+    db.refresh(workout)
+    return workout
