@@ -7,7 +7,7 @@ import WeeklyActivity from '../components/WeeklyActivity'
 import { useAuth } from '../context/AuthContext'
 import { useAsync } from '../hooks/useAsync'
 import { Alert, Card, PageHeader, Spinner } from '../ui'
-import { formatDate, formatDuration, formatShort, startOfWeek, toISODate } from '../utils/dates'
+import { formatDate, formatDuration, formatShort, fromISODate, startOfWeek, toISODate } from '../utils/dates'
 import { settingsStore, waterOn, waterStore, weightStore } from '../utils/localRecords'
 
 const QUICK_WATER = 250 // ml added by the "Add water" link
@@ -47,6 +47,12 @@ export default function DashboardPage() {
   const waterToday = waterOn(water.entries, today)
   const waterPct = Math.round((waterToday / water.goal) * 100)
   const latestWeight = weights[0]
+
+  const month = today.slice(0, 7) // "YYYY-MM"
+  const monthName = new Intl.DateTimeFormat('en-US', { month: 'long' }).format(fromISODate(today))
+  const workoutsThisMonth = (data?.workouts || []).filter(
+    (w) => w.status === 'completed' && w.date.startsWith(month),
+  ).length
 
   const weekStart = toISODate(startOfWeek())
   const sessionsThisWeek = (data?.sessions || []).filter(
@@ -112,6 +118,14 @@ export default function DashboardPage() {
           <div className="stat__label">Weekly sessions</div>
           <div className="stat__value">{loading && !data ? '…' : sessionsThisWeek}</div>
           <div className="stat__meta">Target: {weeklyTarget} sessions</div>
+        </Card>
+
+        <Card className="stat">
+          <div className="stat__label">This month</div>
+          <div className="stat__value">{loading && !data ? '…' : workoutsThisMonth}</div>
+          <div className="stat__meta">
+            Workouts done in {monthName}
+          </div>
         </Card>
       </div>
 
