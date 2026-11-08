@@ -380,3 +380,14 @@ button, input, select, textarea { font: inherit; color: inherit; }
 @media (max-width: 640px) {
   .quick-add { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
+
+/* ===== Weight ===== */
+.chart { width: 100%; height: auto; display: block; }
+.chart__grid { stroke: var(--border); stroke-width: 1; }
+.chart__label { fill: var(--muted); font-size: 14px; }
+.chart__line { fill: none; stroke: var(--primary); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
+.chart__area { fill: rgba(47, 125, 117, 0.1); }
+.chart__dot { fill: #fff; stroke: var(--primary); stroke-width: 2; }
+.delta { font-weight: 700; }
+.delta--down { color: var(--success); }
+.delta--up { color: var(--warning); }

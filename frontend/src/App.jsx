@@ -9,6 +9,7 @@ import HistoryPage from './pages/HistoryPage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import WaterPage from './pages/WaterPage'
+import WeightPage from './pages/WeightPage'
 import WorkoutDetailPage from './pages/WorkoutDetailPage'
 import WorkoutFormPage from './pages/WorkoutFormPage'
 import WorkoutsPage from './pages/WorkoutsPage'
@@ -31,7 +32,7 @@ export default function App() {
           <Route path="workouts/:id/edit" element={<WorkoutFormPage key="edit" />} />
           <Route path="exercises" element={<ExercisesPage />} />
           <Route path="water" element={<WaterPage />} />
-          <Route path="weight" element={<ComingSoonPage title="Weight tracking" />} />
+          <Route path="weight" element={<WeightPage />} />
           <Route path="history" element={<HistoryPage />} />
           <Route path="profile" element={<ComingSoonPage title="My profile" />} />
         </Route>
