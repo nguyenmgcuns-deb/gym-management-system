@@ -27,5 +27,9 @@ app.include_router(auth.router)
 app.include_router(users.router)
 
 @app.get("/")
+
 def health_check():
     return {"status": "ok"}
+    sets = Column(Integer, nullable=False)
+    reps = Column(Integer, nullable=False)
+    weight = Column(Float, nullable=True)   # nullable for bodyweight moves like pull-ups

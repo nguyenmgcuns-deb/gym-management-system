@@ -13,3 +13,6 @@ class WorkoutExercise(Base):
         index=True,
     )
     exercise_id = Column(Integer, ForeignKey("exercises.id"), nullable=False)
+    sets = Column(Integer, nullable=False)
+    reps = Column(Integer, nullable=False)
+    weight = Column(Float, nullable=True)
