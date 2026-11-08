@@ -8,7 +8,18 @@ DEFAULT_EXERCISES = [
     ("Squat", "Legs"),
     ("Deadlift", "Back"),
     ("Pull-up", "Back"),
-    # add your 4+ here, e.g. ("Shoulder press", "Shoulders"),
+    ("Barbell row", "Back"),
+    ("Incline dumbbell press", "Chest"),
+    ("Push-up", "Chest"),
+    ("Shoulder press", "Shoulders"),
+    ("Lateral raise", "Shoulders"),
+    ("Bicep curl", "Arms"),
+    ("Tricep dip", "Arms"),
+    ("Lunge", "Legs"),
+    ("Leg press", "Legs"),
+    ("Romanian deadlift", "Legs"),
+    ("Plank", "Core"),
+    ("Crunch", "Core"),
 ]
 
 
