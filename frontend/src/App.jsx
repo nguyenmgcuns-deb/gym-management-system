@@ -1,26 +1,39 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 
+import ProtectedRoute from './components/ProtectedRoute'
 import { useAuth } from './context/AuthContext'
+import AppLayout from './layouts/AppLayout'
+import ComingSoonPage from './pages/ComingSoonPage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
-import { Card } from './ui'
+import { PageHeader } from './ui'
 
-// Temporary home until the dashboard is built
 function Home() {
   const { user } = useAuth()
-  return (
-    <div className="main">
-      <Card title={`Hi ${user?.first_name ?? ''}`}>You are logged in.</Card>
-    </div>
-  )
+  return <PageHeader title={`Your activity, ${user.first_name}`} />
 }
 
 export default function App() {
   return (
     <Routes>
+      {/* Public */}
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
-      <Route path="/" element={<Home />} />
+
+      {/* Logged-in only */}
+      <Route element={<ProtectedRoute />}>
+        <Route element={<AppLayout />}>
+          <Route index element={<Home />} />
+          <Route path="gym" element={<ComingSoonPage title="Gym sessions" />} />
+          <Route path="workouts" element={<ComingSoonPage title="Workout plans" />} />
+          <Route path="exercises" element={<ComingSoonPage title="Exercises" />} />
+          <Route path="water" element={<ComingSoonPage title="Water tracking" />} />
+          <Route path="weight" element={<ComingSoonPage title="Weight tracking" />} />
+          <Route path="history" element={<ComingSoonPage title="Workout history" />} />
+          <Route path="profile" element={<ComingSoonPage title="My profile" />} />
+        </Route>
+      </Route>
+
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
