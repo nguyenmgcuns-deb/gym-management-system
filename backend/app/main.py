@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import auth, users
+from app.routers import auth, users,  workouts
 from app.database import engine, Base, SessionLocal
 from app.seed import seed_exercises
 
@@ -24,6 +24,7 @@ app.add_middleware(
 
 app.include_router(auth.router)
 app.include_router(users.router)
+app.include_router(workouts.router)
 
 @app.get("/")
 def health_check():
