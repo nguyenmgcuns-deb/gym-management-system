@@ -24,3 +24,13 @@ src/
   utils/        small helpers (dates, local storage)
   styles/       global.css — design tokens and all styles
 ```
+
+## Backend URL
+
+All requests go through `src/api/client.js`, which reads **`VITE_API_URL`**:
+
+```bash
+cp .env.example .env     # then edit VITE_API_URL if your backend isn't on http://127.0.0.1:8000
+```
+
+Restart `npm run dev` after changing `.env`. Never hard-code the URL in pages. Use the API helpers in `src/api/`.
