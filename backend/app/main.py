@@ -2,8 +2,15 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.database import engine, Base
 from app.routers import auth, users
+from app.database import engine, Base, SessionLocal
+from app.seed import seed_exercises
 
 Base.metadata.create_all(bind=engine)
+db = SessionLocal()
+try:
+    seed_exercises(db)
+finally:
+    db.close()
 
 app = FastAPI(title="Gym Tracker API")
 
