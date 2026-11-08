@@ -15,7 +15,7 @@ import urllib.error
 import urllib.request
 
 BASE = os.getenv("API_URL", "http://127.0.0.1:8000")
-ALL_SECTIONS = ["crud", "exercises", "complete", "history", "gym", "ownership", "water"]
+ALL_SECTIONS = ["crud", "exercises", "complete", "history", "gym", "ownership", "water", "weight"]
 FAILS = []
 
 
@@ -202,6 +202,26 @@ if "water" in sections:
         FAILS.append("Bob sees Alice's goal")
     check("Alice deletes own log", "DELETE", f"/api/water/{log['id']}", 204, token=A)
     check("delete again", "DELETE", f"/api/water/{log['id']}", 404, token=A)
+
+# ---------- Weight ----------
+if "weight" in sections:
+    print("\n== Weight ==")
+    first = check("add today", "POST", "/api/weight", 201, {"weight_kg": 75.5}, A)
+    check("add older day", "POST", "/api/weight", 201, {"weight_kg": 76.2, "date": "2026-01-10"}, A)
+    same = check("same day replaces (200)", "POST", "/api/weight", 200, {"weight_kg": 75.1}, A)
+    if same and same["id"] != first["id"]:
+        FAILS.append("same-day replace kept id")
+    check("too light", "POST", "/api/weight", 422, {"weight_kg": 5}, A)
+    check("future date", "POST", "/api/weight", 422, {"weight_kg": 70, "date": "2999-01-01"}, A)
+    entries = check("list", "GET", "/api/weight", 200, token=A)
+    if len(entries) != 2 or entries[0]["weight_kg"] != 75.1:
+        FAILS.append("weight list newest first")
+    check("no token", "GET", "/api/weight", 401)
+    # Ownership
+    check("Bob deletes Alice's entry", "DELETE", f"/api/weight/{first['id']}", 404, token=B)
+    if call("GET", "/api/weight", token=B)[1]:
+        FAILS.append("Bob sees Alice's weight")
+    check("Alice deletes own entry", "DELETE", f"/api/weight/{first['id']}", 204, token=A)
 
 print("\nRESULT:", "ALL PASSED" if not FAILS else f"{len(FAILS)} FAILED: {FAILS}")
 sys.exit(1 if FAILS else 0)
