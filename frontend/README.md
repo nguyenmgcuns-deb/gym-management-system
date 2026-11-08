@@ -37,11 +37,11 @@ Restart `npm run dev` after changing `.env`. Never hard-code the URL in pages. U
 
 ## Where data is stored
 
-| Data | Stored in | Survives refresh | Shared across devices |
-|---|---|---|---|
-| Account, workouts, exercises, gym visits, profile | Backend (PostgreSQL) | ✅ | ✅ |
-| Login token | `localStorage` (`gymtracker.token`) | ✅ | — |
-| Water intake, body weight, weekly gym target | `localStorage`, per user | ✅ | ❌ (until backend endpoints exist) |
+| Data | Stored in | Shared across devices |
+|---|---|---|
+| Account, workouts, exercises, gym visits, water, weight, profile | Backend (PostgreSQL) | ✅ |
+| Login token | `localStorage` (`gymtracker.token`) | — |
+| Weekly gym target | `localStorage`, per user | ❌ (bug #7 in `docs/BUGS.md`) |
 
 ## Testing against the real backend
 
@@ -79,25 +79,21 @@ with a fresh browser session confirming the backend data survived.
 | `/workouts/:id` | Workout detail: exercises, totals, volume | `GET /api/workouts/{id}`, `GET …/exercises` |
 | `/history` | Completed workouts with expandable exercises | `GET /api/workouts/history?limit=100` |
 | `/exercises` | Browse the 252-exercise catalog | `GET /api/exercises` |
-| `/water` | Daily goal, progress, quick-add, today's log, last 7 days | local only (see below) |
-| `/weight` | Record weight, trend chart, history | local only (see below) |
+| `/water` | Daily goal, progress, quick-add, today's log, last 7 days | `GET`/`POST /api/water`, `DELETE /api/water/{id}`, `GET`/`PUT /api/water/goal` |
+| `/weight` | Record weight, trend chart, history | `GET`/`POST /api/weight`, `DELETE /api/weight/{id}` |
+| `/stats` | Simple totals and averages | reads workouts, gym, water, weight |
 | `/profile` | Edit first / last name | `PUT /api/users/me` |
 
-All calls live in `src/api/` (`auth.js`, `workouts.js`, `exercises.js`, `gym.js`) and go through
+All calls live in `src/api/` (`auth.js`, `workouts.js`, `exercises.js`, `gym.js`, `water.js`, `weight.js`) and go through
 `src/api/client.js`, which adds the token, turns FastAPI errors into readable messages, and logs the
 user out on `401`. Pages use `useAsync` (`src/hooks/useAsync.js`) for loading / error / retry.
 
 ## Backend endpoints still needed
 
-| Needed | Why | Suggested shape |
-|---|---|---|
-| Water log | Water is only saved in the browser today | `GET /api/water?date=YYYY-MM-DD`, `POST /api/water {amount_ml}`, `DELETE /api/water/{id}` |
-| Water goal | Goal is per browser today | `daily_water_goal_ml` on the user (`GET`/`PUT /api/users/me`) |
-| Weight log | Weight is only saved in the browser today | `GET /api/weight`, `POST /api/weight {kg, date}`, `DELETE /api/weight/{id}` |
-| Edit / remove a saved exercise in a workout | Today you can only add; mistakes can't be fixed after saving | `PUT` and `DELETE /api/workouts/{id}/exercises/{item_id}` |
-| Exercises inside workout responses | Dashboard makes one extra call per recent workout | `exercises` (or `exercise_count`) in `GET /api/workouts` and `/history` |
-| Weekly gym target | Saved per browser today | `weekly_session_target` on the user |
-| History paging | History stops at the backend max of 100 | `offset` query param on `/api/workouts/history` |
+See "Still open" in [`../docs/API.md`](../docs/API.md) and the owners in [`../docs/BUGS.md`](../docs/BUGS.md).
 
-When these exist, swap `src/utils/localRecords.js` for API calls with the same shapes. The water and
-weight pages don't need other changes.
+## End-to-end test
+
+```bash
+npm run e2e     # backend + npm run dev must be running
+```
