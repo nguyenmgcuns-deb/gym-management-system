@@ -296,3 +296,38 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .week__dots { display: flex; gap: 3px; min-height: 7px; }
 .week__dots i { width: 7px; height: 7px; border-radius: 50%; background: var(--link); }
 .week__summary { margin: 14px 0 0; padding-top: 14px; border-top: 1px solid var(--border); color: var(--text-soft); }
+
+/* ===== Exercise picker / builder ===== */
+.picker { display: flex; flex-direction: column; gap: 12px; }
+.picker__filters { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: start; }
+.search { position: relative; }
+.search .icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); }
+.search .input { padding-left: 38px; }
+.picker__list {
+  max-height: 300px; overflow-y: auto; border: 1px solid var(--border-strong); border-radius: var(--radius-sm);
+  background: #fff;
+}
+.picker__item {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%;
+  padding: 10px 14px; border: 0; border-bottom: 1px solid var(--border); background: none; cursor: pointer; text-align: left;
+}
+.picker__item:last-child { border-bottom: 0; }
+.picker__item:hover { background: var(--surface-tint); }
+.picker__item--selected, .picker__item--selected:hover { background: var(--primary-soft); font-weight: 600; }
+.chip { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 0.78rem; font-weight: 500; background: #e5eef0; color: var(--text-soft); white-space: nowrap; }
+.chip--new { background: var(--primary-soft); color: var(--primary); }
+.exercise-builder { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 24px; align-items: start; }
+.selected-ex { padding: 12px 14px; border-radius: var(--radius-sm); border: 1px dashed var(--border-strong); background: #fff; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.selected-ex--error { border-color: var(--danger); }
+.form-row--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+/* ===== Exercise catalog ===== */
+.ex-groups { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; align-items: start; }
+.ex-groups .card__title { font-size: 1.2rem; }
+.ex-list { list-style: none; margin: 0; padding: 0; columns: 1; }
+.ex-list li { padding: 7px 0; border-bottom: 1px solid var(--border); }
+.ex-list li:last-child { border-bottom: 0; }
+
+@media (max-width: 1000px) {
+  .exercise-builder { grid-template-columns: minmax(0, 1fr); }
+}
