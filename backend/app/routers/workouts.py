@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
 from app.database import get_db
@@ -43,6 +43,23 @@ def list_workouts(
         db.query(Workout)
         .filter(Workout.user_id == current_user.id)
         .order_by(Workout.date.desc(), Workout.id.desc())
+        .all()
+    )
+
+
+# Must stay above "/{workout_id}", otherwise "history" is read as an id
+@router.get("/history", response_model=list[WorkoutResponse])
+def workout_history(
+    limit: int = Query(default=20, ge=1, le=100),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """The user's most recent completed workouts, newest first."""
+    return (
+        db.query(Workout)
+        .filter(Workout.user_id == current_user.id, Workout.status == "completed")
+        .order_by(Workout.date.desc(), Workout.id.desc())
+        .limit(limit)
         .all()
     )
 
