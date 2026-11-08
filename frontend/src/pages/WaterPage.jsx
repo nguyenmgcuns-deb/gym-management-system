@@ -1,33 +1,71 @@
 import { useState } from 'react'
 
-import { useAuth } from '../context/AuthContext'
-import { Alert, Card, EmptyState, Field, PageHeader, ProgressBar } from '../ui'
+import { waterApi } from '../api/water'
+import { useAsync } from '../hooks/useAsync'
+import { Alert, Card, EmptyState, Field, PageHeader, ProgressBar, Spinner } from '../ui'
 import Icon from '../ui/Icon'
 import { addDays, formatShort, formatTime, formatWeekday, fromISODate, toISODate } from '../utils/dates'
-import { waterOn, waterStore } from '../utils/localRecords'
+import { waterOn } from '../utils/water'
 
 const QUICK_AMOUNTS = [150, 250, 500, 750]
 const HISTORY_DAYS = 7
 
+async function loadWater() {
+  // From local midnight 6 days ago, so "last 7 days" means the user's own days
+  const since = addDays(fromISODate(toISODate()), -(HISTORY_DAYS - 1))
+  const [goal, entries] = await Promise.all([waterApi.getGoal(), waterApi.list(since)])
+  return { goal, entries }
+}
+
 export default function WaterPage() {
-  const { user } = useAuth()
-  const [water, setWater] = useState(() => waterStore.load(user.id))
+  const { data, loading, error, reload, setData } = useAsync(loadWater, [])
   const [custom, setCustom] = useState('')
   const [customError, setCustomError] = useState('')
-  const [goalInput, setGoalInput] = useState(String(water.goal))
+  const [goalInput, setGoalInput] = useState('')
   const [goalError, setGoalError] = useState('')
   const [editingGoal, setEditingGoal] = useState(false)
   const [flash, setFlash] = useState('')
+  const [actionError, setActionError] = useState('')
+  const [busy, setBusy] = useState(false)
 
-  const today = toISODate()
-  const total = waterOn(water.entries, today)
-  const left = Math.max(0, water.goal - total)
-  const todays = water.entries.filter((e) => toISODate(new Date(e.at)) === today)
-
-  function add(amount) {
-    setWater(waterStore.add(user.id, amount))
-    setFlash(`Added ${amount} ml.`)
+  if (loading && !data) return <><PageHeader title="Water tracking" /><Spinner /></>
+  if (error && !data) {
+    return <><PageHeader title="Water tracking" /><Alert onRetry={reload}>{error.message}</Alert></>
   }
+
+  const { goal, entries } = data
+  const today = toISODate()
+  const total = waterOn(entries, today)
+  const left = Math.max(0, goal - total)
+  const todays = entries.filter((e) => toISODate(new Date(e.at)) === today)
+  const days = Array.from({ length: HISTORY_DAYS }, (_, i) => toISODate(addDays(fromISODate(today), -i)))
+
+  // Run a server action with one shared busy / error / success handling
+  async function run(fn, success) {
+    setBusy(true)
+    setActionError('')
+    setFlash('')
+    try {
+      await fn()
+      if (success) setFlash(success)
+    } catch (err) {
+      setActionError(err.message)
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const add = (amount) =>
+    run(async () => {
+      const entry = await waterApi.add(amount)
+      setData((d) => ({ ...d, entries: [entry, ...d.entries] }))
+    }, `Added ${amount} ml.`)
+
+  const remove = (entry) =>
+    run(async () => {
+      await waterApi.remove(entry.id)
+      setData((d) => ({ ...d, entries: d.entries.filter((e) => e.id !== entry.id) }))
+    }, `Removed ${entry.amount} ml.`)
 
   function addCustom(e) {
     e.preventDefault()
@@ -49,19 +87,20 @@ export default function WaterPage() {
       return
     }
     setGoalError('')
-    setWater(waterStore.setGoal(user.id, n))
-    setEditingGoal(false)
-    setFlash('Daily goal updated.')
+    run(async () => {
+      const saved = await waterApi.setGoal(n)
+      setData((d) => ({ ...d, goal: saved }))
+      setEditingGoal(false)
+    }, 'Daily goal updated.')
   }
-
-  const days = Array.from({ length: HISTORY_DAYS }, (_, i) => toISODate(addDays(fromISODate(today), -i)))
 
   return (
     <>
-      <PageHeader title="Water tracking" subtitle="Saved on this device · Stay hydrated through the day." />
+      <PageHeader title="Water tracking" subtitle="Stay hydrated through the day." />
 
       <div className="stack">
         {flash && <Alert kind="success">{flash}</Alert>}
+        {actionError && <Alert>{actionError}</Alert>}
 
         <div className="two-col">
           <Card title="Today">
@@ -75,12 +114,15 @@ export default function WaterPage() {
                   </div>
                 </div>
               </div>
-              <ProgressBar value={total} max={water.goal} />
+              <ProgressBar value={total} max={goal} />
               <div className="row">
-                <span className="muted">{Math.round((total / water.goal) * 100)}% of {water.goal.toLocaleString()} ml</span>
+                <span className="muted">{Math.round((total / goal) * 100)}% of {goal.toLocaleString()} ml</span>
                 <span className="spacer" />
                 {!editingGoal && (
-                  <button type="button" className="link-btn" onClick={() => setEditingGoal(true)}>Change goal</button>
+                  <button type="button" className="link-btn"
+                    onClick={() => { setGoalInput(String(goal)); setEditingGoal(true) }}>
+                    Change goal
+                  </button>
                 )}
               </div>
               {editingGoal && (
@@ -89,9 +131,9 @@ export default function WaterPage() {
                     <input id="goal" type="number" min="500" step="50" className="input" value={goalInput}
                       onChange={(e) => setGoalInput(e.target.value)} />
                   </Field>
-                  <button type="submit" className="btn btn--primary btn--sm" style={{ alignSelf: 'flex-end' }}>Save</button>
+                  <button type="submit" className="btn btn--primary btn--sm" style={{ alignSelf: 'flex-end' }} disabled={busy}>Save</button>
                   <button type="button" className="btn btn--secondary btn--sm" style={{ alignSelf: 'flex-end' }}
-                    onClick={() => { setEditingGoal(false); setGoalError(''); setGoalInput(String(water.goal)) }}>Cancel</button>
+                    onClick={() => { setEditingGoal(false); setGoalError('') }}>Cancel</button>
                 </form>
               )}
             </div>
@@ -100,7 +142,7 @@ export default function WaterPage() {
           <Card title="Add water">
             <div className="quick-add">
               {QUICK_AMOUNTS.map((a) => (
-                <button key={a} type="button" className="quick-add__btn" onClick={() => add(a)}>
+                <button key={a} type="button" className="quick-add__btn" onClick={() => add(a)} disabled={busy}>
                   <Icon name="plus" size={16} /> {a} ml
                 </button>
               ))}
@@ -112,7 +154,7 @@ export default function WaterPage() {
                     placeholder="e.g. 330" value={custom} onChange={(e) => setCustom(e.target.value)} />
                 </Field>
               </div>
-              <button type="submit" className="btn btn--primary" style={{ marginTop: 27 }}>Add</button>
+              <button type="submit" className="btn btn--primary" style={{ marginTop: 27 }} disabled={busy}>Add</button>
             </form>
           </Card>
         </div>
@@ -127,8 +169,8 @@ export default function WaterPage() {
                   <li key={e.id}>
                     <span className="log__time">{formatTime(e.at)}</span>
                     <strong>{e.amount} ml</strong>
-                    <button type="button" className="icon-btn icon-btn--danger" aria-label={`Remove ${e.amount} ml at ${formatTime(e.at)}`}
-                      onClick={() => setWater(waterStore.remove(user.id, e.id))}>
+                    <button type="button" className="icon-btn icon-btn--danger" disabled={busy}
+                      aria-label={`Remove ${e.amount} ml at ${formatTime(e.at)}`} onClick={() => remove(e)}>
                       <Icon name="trash" size={16} />
                     </button>
                   </li>
@@ -140,8 +182,8 @@ export default function WaterPage() {
           <Card title="Last 7 days">
             <ul className="day-bars">
               {days.map((d) => {
-                const amount = waterOn(water.entries, d)
-                const pct = Math.min(100, Math.round((amount / water.goal) * 100))
+                const amount = waterOn(entries, d)
+                const pct = Math.min(100, Math.round((amount / goal) * 100))
                 return (
                   <li key={d}>
                     <span className="day-bars__label">{d === today ? 'Today' : `${formatWeekday(d)} ${formatShort(d)}`}</span>

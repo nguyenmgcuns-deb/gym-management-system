@@ -2,13 +2,15 @@ import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import { gymApi } from '../api/gym'
+import { waterApi } from '../api/water'
 import { workoutsApi } from '../api/workouts'
 import WeeklyActivity from '../components/WeeklyActivity'
 import { useAuth } from '../context/AuthContext'
 import { useAsync } from '../hooks/useAsync'
 import { Alert, Card, PageHeader, Spinner } from '../ui'
 import { formatDate, formatDuration, formatShort, fromISODate, startOfWeek, toISODate } from '../utils/dates'
-import { settingsStore, waterOn, waterStore, weightStore } from '../utils/localRecords'
+import { settingsStore, weightStore } from '../utils/localRecords'
+import { waterOn } from '../utils/water'
 
 const QUICK_WATER = 250 // ml added by the "Add water" link
 
@@ -25,28 +27,46 @@ function pickTodaysWorkout(workouts, today) {
 }
 
 async function loadDashboard() {
-  const [workouts, sessions, recent] = await Promise.all([
+  const midnight = fromISODate(toISODate()) // start of today, local time
+  const [workouts, sessions, recent, waterToday, waterGoal] = await Promise.all([
     workoutsApi.list(),
     gymApi.history(),
     workoutsApi.history(5),
+    waterApi.list(midnight),
+    waterApi.getGoal(),
   ])
   // Exercise count per recent workout
   const counts = await Promise.all(recent.map((w) => workoutsApi.listExercises(w.id)))
   const recentRows = recent.map((w, i) => ({ ...w, exerciseCount: counts[i].length }))
-  return { workouts, sessions, recent: recentRows }
+  return { workouts, sessions, recent: recentRows, waterToday, waterGoal }
 }
 
 export default function DashboardPage() {
   const { user } = useAuth()
-  const { data, loading, error, reload } = useAsync(loadDashboard, [])
-  const [water, setWater] = useState(() => waterStore.load(user.id))
+  const { data, loading, error, reload, setData } = useAsync(loadDashboard, [])
+  const [waterBusy, setWaterBusy] = useState(false)
+  const [waterError, setWaterError] = useState('')
   const weights = useMemo(() => weightStore.load(user.id), [user.id])
   const weeklyTarget = settingsStore.weeklyTarget(user.id)
 
   const today = toISODate()
-  const waterToday = waterOn(water.entries, today)
-  const waterPct = Math.round((waterToday / water.goal) * 100)
+  const waterToday = data ? waterOn(data.waterToday, today) : 0
+  const waterGoal = data?.waterGoal || 3000
+  const waterPct = Math.round((waterToday / waterGoal) * 100)
   const latestWeight = weights[0]
+
+  async function quickAddWater() {
+    setWaterBusy(true)
+    setWaterError('')
+    try {
+      const entry = await waterApi.add(QUICK_WATER)
+      setData((d) => ({ ...d, waterToday: [entry, ...d.waterToday] }))
+    } catch (err) {
+      setWaterError(err.message)
+    } finally {
+      setWaterBusy(false)
+    }
+  }
 
   const month = today.slice(0, 7) // "YYYY-MM"
   const monthName = new Intl.DateTimeFormat('en-US', { month: 'long' }).format(fromISODate(today))
@@ -95,14 +115,14 @@ export default function DashboardPage() {
 
         <Card className="stat">
           <div className="stat__label">Water intake</div>
-          <div className="stat__value">{waterToday.toLocaleString()} ml</div>
+          <div className="stat__value">{loading && !data ? '…' : `${waterToday.toLocaleString()} ml`}</div>
           <div className="stat__meta">
             {waterPct}% of daily goal ·{' '}
-            <button type="button" className="link-btn"
-              onClick={() => setWater(waterStore.add(user.id, QUICK_WATER))}>
-              Add water
+            <button type="button" className="link-btn" onClick={quickAddWater} disabled={waterBusy || !data}>
+              {waterBusy ? 'Adding…' : 'Add water'}
             </button>
           </div>
+          {waterError && <p className="field__error">{waterError}</p>}
         </Card>
 
         <Card className="stat">
