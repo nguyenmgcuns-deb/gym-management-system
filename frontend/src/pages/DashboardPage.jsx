@@ -88,7 +88,7 @@ export default function DashboardPage() {
         subtitle={`${formatShort(today)} · Here's how your week is going`}
       />
 
-      {error && <div style={{ marginBottom: 20 }}><Alert onRetry={reload}>{error.message}</Alert></div>}
+      {error && <div className="mb"><Alert onRetry={reload}>{error.message}</Alert></div>}
 
       <div className="stat-grid">
         <Card className="stat">

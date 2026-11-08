@@ -131,7 +131,7 @@ export default function WaterPage() {
                     <input id="goal" type="number" min="500" step="50" className="input" value={goalInput}
                       onChange={(e) => setGoalInput(e.target.value)} />
                   </Field>
-                  <button type="submit" className="btn btn--primary btn--sm" style={{ alignSelf: 'flex-end' }} disabled={busy}>Save</button>
+                  <button type="submit" className="btn btn--primary btn--sm" style={{ alignSelf: 'flex-end' }} disabled={busy}>Save goal</button>
                   <button type="button" className="btn btn--secondary btn--sm" style={{ alignSelf: 'flex-end' }}
                     onClick={() => { setEditingGoal(false); setGoalError('') }}>Cancel</button>
                 </form>

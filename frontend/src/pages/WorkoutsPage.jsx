@@ -45,7 +45,7 @@ export default function WorkoutsPage() {
     }, `"${w.name}" marked as completed.`)
 
   const remove = (w) => {
-    if (!window.confirm(`Delete "${w.name}"? Its exercises will be deleted too.`)) return
+    if (!window.confirm(`Delete "${w.name}" and its exercises? This can't be undone.`)) return
     act(w.id, async () => {
       await workoutsApi.remove(w.id)
       setData((list) => list.filter((x) => x.id !== w.id))
@@ -76,8 +76,8 @@ export default function WorkoutsPage() {
           </div>
         </div>
 
-        {actionError && <div style={{ marginBottom: 16 }}><Alert>{actionError}</Alert></div>}
-        {flash && <div style={{ marginBottom: 16 }}><Alert kind="success">{flash}</Alert></div>}
+        {actionError && <div className="mb"><Alert>{actionError}</Alert></div>}
+        {flash && <div className="mb"><Alert kind="success">{flash}</Alert></div>}
 
         {loading && !workouts ? (
           <Spinner />

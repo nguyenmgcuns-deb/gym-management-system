@@ -157,6 +157,11 @@ export default function WorkoutFormPage() {
 
   return (
     <>
+      <p className="crumb">
+        <Link to={isEdit ? `/workouts/${id}` : '/workouts'}>
+          <Icon name="chevronLeft" size={16} /> {isEdit ? form.name || 'Workout' : 'Workout plans'}
+        </Link>
+      </p>
       <PageHeader
         title={isEdit ? 'Edit workout' : 'New workout'}
         subtitle={isEdit ? 'Change the details or add more exercises.' : 'Name it, pick a day, and add exercises.'}

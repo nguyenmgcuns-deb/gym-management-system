@@ -482,3 +482,6 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .week--compact { grid-template-columns: repeat(8, minmax(0, 1fr)); }
 .week--compact .week__track { height: 110px; }
 .week--compact .week__label { font-size: 0.75rem; white-space: nowrap; }
+
+/* ===== Utilities ===== */
+.mb { margin-bottom: 18px; }

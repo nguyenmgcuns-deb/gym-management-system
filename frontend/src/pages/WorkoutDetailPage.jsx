@@ -60,7 +60,7 @@ export default function WorkoutDetailPage() {
   }
 
   async function remove() {
-    if (!window.confirm(`Delete "${workout.name}"? This can't be undone.`)) return
+    if (!window.confirm(`Delete "${workout.name}" and its exercises? This can't be undone.`)) return
     setBusy(true)
     try {
       await workoutsApi.remove(workout.id)

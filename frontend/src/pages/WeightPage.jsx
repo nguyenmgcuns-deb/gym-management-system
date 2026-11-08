@@ -69,7 +69,7 @@ export default function WeightPage() {
   }
 
   function remove(entry) {
-    if (!window.confirm(`Delete ${entry.kg} kg on ${formatDate(entry.date)}?`)) return
+    if (!window.confirm(`Delete ${entry.kg} kg on ${formatDate(entry.date)}? This can't be undone.`)) return
     run(async () => {
       await weightApi.remove(entry.id)
       setData((list) => list.filter((x) => x.id !== entry.id))
