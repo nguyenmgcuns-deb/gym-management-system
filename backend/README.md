@@ -157,17 +157,21 @@ a list in `detail` that shows which field failed.
 
 ## Seed data
 
-On startup `app/seed.py` adds these exercises if they're missing. It's safe to run many times.
-Get their IDs from `GET /api/exercises`.
+On startup `app/seed.py` adds any catalog exercise that's missing (252 exercises).
+It's safe to run many times. Get their IDs from `GET /api/exercises`.
 
-| Muscle group | Exercises |
-|---|---|
-| Chest | Bench press, Incline dumbbell press, Push-up |
-| Back | Deadlift, Pull-up, Barbell row |
-| Legs | Squat, Lunge, Leg press, Romanian deadlift |
-| Shoulders | Shoulder press, Lateral raise |
-| Arms | Bicep curl, Tricep dip |
-| Core | Plank, Crunch |
+| Muscle group | Count | Examples |
+|---|---|---|
+| Chest | 28 | Bench press, Incline dumbbell press, Cable fly, Push-up |
+| Back | 32 | Deadlift, Pull-up, Lat pulldown, Barbell row |
+| Shoulders | 27 | Shoulder press, Arnold press, Lateral raise, Face pull |
+| Arms | 33 | Bicep curl, Hammer curl, Tricep pushdown, Skull crusher |
+| Legs | 52 | Squat, Leg press, Romanian deadlift, Hip thrust, Calf raise |
+| Core | 32 | Plank, Hanging leg raise, Ab wheel rollout, Pallof press |
+| Cardio | 26 | Running, Rowing machine, Stair climber, Jump rope |
+| Full body | 22 | Burpee, Power clean, Thruster, Kettlebell snatch |
+
+To add more, add names to `EXERCISES_BY_GROUP` in `app/seed.py` and restart.
 
 ## Data models
 
