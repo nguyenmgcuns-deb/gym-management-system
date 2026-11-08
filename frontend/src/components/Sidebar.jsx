@@ -11,6 +11,7 @@ const NAV_ITEMS = [
   { to: '/exercises', label: 'Exercises', icon: 'grid' },
   { to: '/water', label: 'Water tracking', icon: 'droplet' },
   { to: '/weight', label: 'Weight tracking', icon: 'scale' },
+  { to: '/stats', label: 'Statistics', icon: 'chart' },
   { to: '/history', label: 'Workout history', icon: 'history' },
   { to: '/profile', label: 'My profile', icon: 'user' },
 ]

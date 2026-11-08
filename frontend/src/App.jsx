@@ -9,6 +9,7 @@ import HistoryPage from './pages/HistoryPage'
 import LoginPage from './pages/LoginPage'
 import ProfilePage from './pages/ProfilePage'
 import RegisterPage from './pages/RegisterPage'
+import StatisticsPage from './pages/StatisticsPage'
 import WaterPage from './pages/WaterPage'
 import WeightPage from './pages/WeightPage'
 import WorkoutDetailPage from './pages/WorkoutDetailPage'
@@ -35,6 +36,7 @@ export default function App() {
           <Route path="water" element={<WaterPage />} />
           <Route path="weight" element={<WeightPage />} />
           <Route path="history" element={<HistoryPage />} />
+          <Route path="stats" element={<StatisticsPage />} />
           <Route path="profile" element={<ProfilePage />} />
         </Route>
       </Route>

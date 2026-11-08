@@ -471,3 +471,14 @@ button, input, select, textarea { font: inherit; color: inherit; }
   .sidebar { box-shadow: none; }
   .sidebar--open { box-shadow: 4px 0 24px rgba(0, 0, 0, 0.25); }
 }
+
+/* ===== Statistics ===== */
+.mini-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.mini-stat { padding: 14px 16px; border-radius: var(--radius-sm); background: #fff; border: 1px solid var(--border); }
+.mini-stat__label { color: var(--text-soft); font-size: 0.9rem; }
+.mini-stat__value { font-size: 1.5rem; font-weight: 700; margin-top: 4px; }
+.mini-stat__meta { color: var(--muted); font-size: 0.85rem; margin-top: 2px; }
+.sub-title { font-size: 1.05rem; margin: 22px 0 4px; color: var(--text-soft); }
+.week--compact { grid-template-columns: repeat(8, minmax(0, 1fr)); }
+.week--compact .week__track { height: 110px; }
+.week--compact .week__label { font-size: 0.75rem; white-space: nowrap; }
