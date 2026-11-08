@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext'
 import Icon from '../ui/Icon'
 import Logo from '../ui/Logo'
 
-export const NAV_ITEMS = [
+const NAV_ITEMS = [
   { to: '/', label: 'Dashboard', icon: 'home', end: true },
   { to: '/gym', label: 'Gym sessions', icon: 'calendar' },
   { to: '/workouts', label: 'Workout plans', icon: 'dumbbell' },

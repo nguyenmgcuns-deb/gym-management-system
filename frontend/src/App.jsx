@@ -1,17 +1,11 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 
 import ProtectedRoute from './components/ProtectedRoute'
-import { useAuth } from './context/AuthContext'
 import AppLayout from './layouts/AppLayout'
 import ComingSoonPage from './pages/ComingSoonPage'
+import DashboardPage from './pages/DashboardPage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
-import { PageHeader } from './ui'
-
-function Home() {
-  const { user } = useAuth()
-  return <PageHeader title={`Your activity, ${user.first_name}`} />
-}
 
 export default function App() {
   return (
@@ -23,7 +17,7 @@ export default function App() {
       {/* Logged-in only */}
       <Route element={<ProtectedRoute />}>
         <Route element={<AppLayout />}>
-          <Route index element={<Home />} />
+          <Route index element={<DashboardPage />} />
           <Route path="gym" element={<ComingSoonPage title="Gym sessions" />} />
           <Route path="workouts" element={<ComingSoonPage title="Workout plans" />} />
           <Route path="exercises" element={<ComingSoonPage title="Exercises" />} />

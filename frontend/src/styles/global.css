@@ -151,7 +151,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .stat__meta { color: var(--text-soft); font-size: 0.95rem; }
 .stat .btn { margin-top: auto; align-self: flex-start; }
 
-.two-col { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 30px; }
+.two-col { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 30px; }
 .stack { display: flex; flex-direction: column; gap: 24px; }
 .row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 .spacer { flex: 1; }
@@ -283,3 +283,16 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .backdrop { display: none; }
 .topbar .topbar__menu, .sidebar .sidebar__close { display: none; }
 .user-menu__name { max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ===== Weekly activity chart ===== */
+.week__range { margin: 22px 0 8px; font-size: 1.1rem; color: var(--text-soft); padding-bottom: 18px; border-bottom: 1px solid var(--border); }
+.week { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 10px; align-items: end; padding: 16px 0 6px; }
+.week__day { display: flex; flex-direction: column; align-items: center; gap: 6px; min-width: 0; }
+.week__value { font-size: 0.8rem; color: var(--muted); min-height: 1.1em; }
+.week__track { width: 100%; max-width: 38px; height: 150px; display: flex; align-items: flex-end; border-radius: 8px; background: var(--primary-soft); overflow: hidden; }
+.week__bar { width: 100%; border-radius: 8px 8px 0 0; background: linear-gradient(180deg, #4aa79c, var(--primary-bottom)); transition: height 0.3s; }
+.week__label { font-size: 0.85rem; color: var(--text-soft); font-weight: 500; }
+.week__day--today .week__label { color: var(--primary); font-weight: 700; }
+.week__dots { display: flex; gap: 3px; min-height: 7px; }
+.week__dots i { width: 7px; height: 7px; border-radius: 50%; background: var(--link); }
+.week__summary { margin: 14px 0 0; padding-top: 14px; border-top: 1px solid var(--border); color: var(--text-soft); }
