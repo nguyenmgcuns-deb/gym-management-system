@@ -1,22 +1,12 @@
-import { Route, Routes } from 'react-router-dom'
+import { Navigate, Route, Routes } from 'react-router-dom'
 
-import { Card, PageHeader } from './ui'
-import Logo from './ui/Logo'
-
-function Welcome() {
-  return (
-    <div className="main">
-      <Logo light={false} />
-      <PageHeader title="GymTracker" subtitle="Frontend structure is ready." />
-      <Card title="Next">Pages are added step by step.</Card>
-    </div>
-  )
-}
+import RegisterPage from './pages/RegisterPage'
 
 export default function App() {
   return (
     <Routes>
-      <Route path="*" element={<Welcome />} />
+      <Route path="/register" element={<RegisterPage />} />
+      <Route path="*" element={<Navigate to="/register" replace />} />
     </Routes>
   )
 }
