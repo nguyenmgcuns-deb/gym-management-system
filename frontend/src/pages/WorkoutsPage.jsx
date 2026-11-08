@@ -98,7 +98,7 @@ export default function WorkoutsPage() {
               <tbody>
                 {shown.map((w) => (
                   <tr key={w.id}>
-                    <td data-label="Workout"><Link to={`/workouts/${w.id}`}>{w.name}</Link></td>
+                    <td className="td-title"><Link to={`/workouts/${w.id}`}>{w.name}</Link></td>
                     <td data-label="Date">{formatDate(w.date)}</td>
                     <td data-label="Duration">{formatDuration(w.duration)}</td>
                     <td data-label="Status"><Badge kind={w.status}>{w.status}</Badge></td>

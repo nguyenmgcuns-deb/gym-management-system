@@ -398,3 +398,76 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .checkin--active .checkin__timer { color: var(--primary); }
 .checkin__btn { margin-top: 8px; padding: 14px 28px; font-size: 1.05rem; }
 .checkin--active { border-color: #9fd0c8; box-shadow: var(--shadow-card), 0 0 0 3px rgba(47, 125, 117, 0.12); }
+
+/* ===== Responsive: tablet & phone ===== */
+@media (max-width: 960px) {
+  /* Sidebar becomes a slide-in drawer */
+  .sidebar {
+    position: fixed; left: 0; top: 0; bottom: 0; z-index: 40; height: 100%;
+    transform: translateX(-100%); transition: transform 0.25s ease;
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.25);
+  }
+  .sidebar--open { transform: translateX(0); }
+  .sidebar .sidebar__close {
+    display: inline-grid; background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.2); color: #fff;
+  }
+  .backdrop { display: block; position: fixed; inset: 0; z-index: 30; background: rgba(10, 30, 30, 0.45); }
+  .topbar .topbar__menu { display: inline-grid; }
+
+  .main { padding: 12px 16px 32px; }
+  .topbar { min-height: 64px; padding: 0 12px; margin-bottom: 22px; gap: 12px; }
+  .topbar__divider { margin: 12px 0; }
+  .page-header { margin-bottom: 20px; }
+  .page-header h1 { font-size: 2rem; }
+  .card { padding: 20px; }
+  .card__title { font-size: 1.3rem; }
+  .stat-grid { gap: 14px; margin-bottom: 22px; }
+  .stat { min-height: 0; }
+  .stat .btn { margin-top: 12px; }
+  .two-col { gap: 20px; }
+  .stack { gap: 18px; }
+}
+
+@media (max-width: 640px) {
+  .page-header h1 { font-size: 1.75rem; }
+  .page-header__action, .page-header__action .row { width: 100%; }
+  .page-header__action .btn { flex: 1; }
+  .stat-grid, .stat-grid--3 { grid-template-columns: minmax(0, 1fr); }
+  .stat__value { font-size: 1.6rem; }
+  .user-menu__name { display: none; }
+  .avatar { width: 38px; height: 38px; }
+  .card__head { margin-bottom: 14px; }
+  .table th, .table td { padding: 12px 12px; }
+  .picker__filters { grid-template-columns: minmax(0, 1fr); }
+  .history__head { grid-template-columns: minmax(0, 1fr) auto; row-gap: 2px; }
+  .history__date { grid-column: 1; grid-row: 2; font-size: 0.9rem; }
+  .history__name { grid-column: 1; grid-row: 1; }
+  .history__dur { grid-column: 2; grid-row: 1 / span 2; }
+  .history__chev { display: none; }
+  .day-bars li { grid-template-columns: 82px minmax(0, 1fr) 64px; }
+  .checkin__timer { font-size: 2.4rem; }
+  .week { gap: 6px; }
+  .week__track { height: 110px; }
+  .row .btn { padding-left: 14px; padding-right: 14px; }
+  .auth__card h1 { font-size: 1.7rem; }
+
+  /* Tables marked .table--cards: each row becomes a small card */
+  .table--cards thead { display: none; }
+  .table--cards, .table--cards tbody, .table--cards td { display: block; width: 100%; }
+  .table--cards tr { display: flex; flex-direction: column; padding: 12px 4px; border-bottom: 1px solid var(--border); }
+  .table--cards tr:last-child { border-bottom: 0; }
+  .table--cards td { border: 0; padding: 4px 8px; display: flex; justify-content: space-between; gap: 12px; }
+  .table--cards td[data-label]::before { content: attr(data-label); color: var(--muted); font-size: 0.88rem; }
+  .table--cards .td-title { order: -1; font-size: 1.05rem; }
+  .table--cards .actions { justify-content: flex-start; margin-top: 6px; width: 100%; }
+
+  .week__nav { flex-wrap: nowrap; gap: 8px; }
+  .week__nav .btn { flex: 1; padding: 10px 8px; font-size: 0.92rem; }
+  .hide-phone { display: none; }
+}
+
+/* Only cast the drawer shadow when it's actually open */
+@media (max-width: 960px) {
+  .sidebar { box-shadow: none; }
+  .sidebar--open { box-shadow: 4px 0 24px rgba(0, 0, 0, 0.25); }
+}

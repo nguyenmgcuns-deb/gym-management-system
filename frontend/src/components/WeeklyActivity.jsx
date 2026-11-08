@@ -26,10 +26,14 @@ export default function WeeklyActivity({ sessions, workouts }) {
 
   return (
     <div>
-      <div className="row">
-        <button type="button" className="btn btn--primary" onClick={() => setOffset(offset - 1)}>Previous week</button>
+      <div className="row week__nav">
+        <button type="button" className="btn btn--primary" onClick={() => setOffset(offset - 1)}>
+          Previous<span className="hide-phone"> week</span>
+        </button>
         <button type="button" className="btn btn--primary" onClick={() => setOffset(0)} disabled={offset === 0}>This week</button>
-        <button type="button" className="btn btn--primary" onClick={() => setOffset(offset + 1)} disabled={offset >= 0}>Next week</button>
+        <button type="button" className="btn btn--primary" onClick={() => setOffset(offset + 1)} disabled={offset >= 0}>
+          Next<span className="hide-phone"> week</span>
+        </button>
       </div>
       <p className="week__range">
         {formatShort(days[0])} – {formatShort(days[6])}

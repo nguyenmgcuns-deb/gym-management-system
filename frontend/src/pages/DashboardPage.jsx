@@ -122,7 +122,7 @@ export default function DashboardPage() {
 
         <Card title="Recent workouts">
           <div className="table-wrap">
-            <table className="table">
+            <table className="table table--cards">
               <thead>
                 <tr>
                   <th>Date</th>
@@ -137,10 +137,10 @@ export default function DashboardPage() {
                 ) : data?.recent.length ? (
                   data.recent.map((w) => (
                     <tr key={w.id}>
-                      <td>{formatShort(w.date)}</td>
-                      <td><Link to={`/workouts/${w.id}`}>{w.name}</Link></td>
-                      <td>{formatDuration(w.duration)}</td>
-                      <td>{w.exerciseCount}</td>
+                      <td data-label="Date">{formatShort(w.date)}</td>
+                      <td className="td-title"><Link to={`/workouts/${w.id}`}>{w.name}</Link></td>
+                      <td data-label="Duration">{formatDuration(w.duration)}</td>
+                      <td data-label="Exercises">{w.exerciseCount}</td>
                     </tr>
                   ))
                 ) : (
