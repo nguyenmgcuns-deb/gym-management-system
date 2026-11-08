@@ -6,6 +6,7 @@ import ComingSoonPage from './pages/ComingSoonPage'
 import DashboardPage from './pages/DashboardPage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
+import WorkoutsPage from './pages/WorkoutsPage'
 
 export default function App() {
   return (
@@ -19,7 +20,7 @@ export default function App() {
         <Route element={<AppLayout />}>
           <Route index element={<DashboardPage />} />
           <Route path="gym" element={<ComingSoonPage title="Gym sessions" />} />
-          <Route path="workouts" element={<ComingSoonPage title="Workout plans" />} />
+          <Route path="workouts" element={<WorkoutsPage />} />
           <Route path="exercises" element={<ComingSoonPage title="Exercises" />} />
           <Route path="water" element={<ComingSoonPage title="Water tracking" />} />
           <Route path="weight" element={<ComingSoonPage title="Weight tracking" />} />

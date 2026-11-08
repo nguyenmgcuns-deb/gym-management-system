@@ -2,7 +2,7 @@
 const PATHS = {
   home: <><path d="M3 10.5 12 3l9 7.5" /><path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5" /></>,
   calendar: <><rect x="3" y="4.5" width="18" height="16.5" rx="2" /><path d="M3 9.5h18M8 2.5v4M16 2.5v4" /></>,
-  dumbbell: <><path d="M6.5 6.5l11 11" /><path d="m21 21-1-1M3 3l1 1" /><path d="m18 22 4-4M2 6l4-4" /><path d="m3 10 7-7M14 21l7-7" /></>,
+  dumbbell: <><path d="M6.5 12h11" /><rect x="4" y="7" width="3" height="10" rx="1" /><rect x="17" y="7" width="3" height="10" rx="1" /><path d="M2 10v4M22 10v4" /></>,
   grid: <><rect x="3.5" y="3.5" width="7" height="7" rx="1" /><rect x="13.5" y="3.5" width="7" height="7" rx="1" /><rect x="3.5" y="13.5" width="7" height="7" rx="1" /><rect x="13.5" y="13.5" width="7" height="7" rx="1" /></>,
   droplet: <path d="M12 2.7s6.5 7 6.5 11.8a6.5 6.5 0 0 1-13 0C5.5 9.7 12 2.7 12 2.7z" />,
   scale: <><path d="M6.5 8h11l2.5 13H4z" /><circle cx="12" cy="5.5" r="2.5" /></>,
