@@ -331,3 +331,25 @@ button, input, select, textarea { font: inherit; color: inherit; }
 @media (max-width: 1000px) {
   .exercise-builder { grid-template-columns: minmax(0, 1fr); }
 }
+
+/* ===== Workout detail / history ===== */
+.crumb { margin: 0 0 10px; }
+.crumb a { display: inline-flex; align-items: center; gap: 4px; color: var(--text-soft); text-decoration: none; font-weight: 500; }
+.crumb a:hover { color: var(--primary); }
+.stat-grid--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); margin-bottom: 0; }
+.stat--small { min-height: 0; }
+.stat--small .stat__value { margin-bottom: 0; }
+.table--compact th, .table--compact td { padding: 10px 14px; }
+.history { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.history__item { border: 1px solid var(--border); border-radius: var(--radius-sm); background: #fff; overflow: hidden; }
+.history__head {
+  display: grid; grid-template-columns: 130px minmax(0, 1fr) auto auto; align-items: center; gap: 16px;
+  width: 100%; padding: 14px 18px; border: 0; background: none; cursor: pointer; text-align: left;
+}
+.history__head:hover { background: var(--surface-tint); }
+.history__date { color: var(--text-soft); }
+.history__name { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.history__dur { display: inline-flex; align-items: center; gap: 6px; color: var(--text-soft); }
+.history__chev { color: var(--muted); transition: transform 0.2s; }
+.history__item--open .history__chev { transform: rotate(180deg); }
+.history__body { padding: 4px 18px 18px; border-top: 1px solid var(--border); background: var(--surface-tint); }

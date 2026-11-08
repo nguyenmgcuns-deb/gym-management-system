@@ -5,8 +5,10 @@ import AppLayout from './layouts/AppLayout'
 import ComingSoonPage from './pages/ComingSoonPage'
 import DashboardPage from './pages/DashboardPage'
 import ExercisesPage from './pages/ExercisesPage'
+import HistoryPage from './pages/HistoryPage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
+import WorkoutDetailPage from './pages/WorkoutDetailPage'
 import WorkoutFormPage from './pages/WorkoutFormPage'
 import WorkoutsPage from './pages/WorkoutsPage'
 
@@ -24,12 +26,12 @@ export default function App() {
           <Route path="gym" element={<ComingSoonPage title="Gym sessions" />} />
           <Route path="workouts" element={<WorkoutsPage />} />
           <Route path="workouts/new" element={<WorkoutFormPage />} />
-          <Route path="workouts/:id" element={<ComingSoonPage title="Workout" />} />
+          <Route path="workouts/:id" element={<WorkoutDetailPage />} />
           <Route path="workouts/:id/edit" element={<WorkoutFormPage key="edit" />} />
           <Route path="exercises" element={<ExercisesPage />} />
           <Route path="water" element={<ComingSoonPage title="Water tracking" />} />
           <Route path="weight" element={<ComingSoonPage title="Weight tracking" />} />
-          <Route path="history" element={<ComingSoonPage title="Workout history" />} />
+          <Route path="history" element={<HistoryPage />} />
           <Route path="profile" element={<ComingSoonPage title="My profile" />} />
         </Route>
       </Route>
