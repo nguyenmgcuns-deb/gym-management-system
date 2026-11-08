@@ -1,11 +1,13 @@
 import { useState } from 'react'
 
+import { weightApi } from '../api/weight'
 import WeightChart from '../components/WeightChart'
-import { useAuth } from '../context/AuthContext'
-import { Alert, Card, EmptyState, Field, PageHeader } from '../ui'
+import { useAsync } from '../hooks/useAsync'
+import { Alert, Card, EmptyState, Field, PageHeader, Spinner } from '../ui'
 import Icon from '../ui/Icon'
 import { formatDate, toISODate } from '../utils/dates'
-import { weightStore } from '../utils/localRecords'
+
+const sortNewest = (list) => [...list].sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0))
 
 const round1 = (n) => Math.round(n * 10) / 10
 
@@ -15,16 +17,37 @@ function Change({ value }) {
 }
 
 export default function WeightPage() {
-  const { user } = useAuth()
-  const [entries, setEntries] = useState(() => weightStore.load(user.id))
+  const { data, loading, error, reload, setData } = useAsync(() => weightApi.list(), [])
   const today = toISODate()
   const [form, setForm] = useState({ kg: '', date: today })
   const [errors, setErrors] = useState({})
   const [flash, setFlash] = useState('')
+  const [actionError, setActionError] = useState('')
+  const [busy, setBusy] = useState(false)
 
+  if (loading && !data) return <><PageHeader title="Weight tracking" /><Spinner /></>
+  if (error && !data) {
+    return <><PageHeader title="Weight tracking" /><Alert onRetry={reload}>{error.message}</Alert></>
+  }
+
+  const entries = data
   const latest = entries[0]
   const first = entries[entries.length - 1]
   const lowest = entries.length ? Math.min(...entries.map((e) => e.kg)) : null
+
+  async function run(fn) {
+    setBusy(true)
+    setActionError('')
+    setFlash('')
+    try {
+      await fn()
+    } catch (err) {
+      setActionError(err.message)
+      setErrors(err.fieldErrors?.weight_kg ? { kg: err.fieldErrors.weight_kg } : err.fieldErrors?.date ? { date: err.fieldErrors.date } : {})
+    } finally {
+      setBusy(false)
+    }
+  }
 
   function submit(e) {
     e.preventDefault()
@@ -37,22 +60,30 @@ export default function WeightPage() {
     if (Object.keys(found).length) return
 
     const replaced = entries.some((x) => x.date === form.date)
-    setEntries(weightStore.add(user.id, { kg: round1(kg), date: form.date }))
-    setForm({ kg: '', date: today })
-    setFlash(replaced ? `Updated your weight for ${formatDate(form.date)}.` : `Saved ${round1(kg)} kg.`)
+    run(async () => {
+      const saved = await weightApi.save({ kg: round1(kg), date: form.date })
+      setData((list) => sortNewest([saved, ...list.filter((x) => x.date !== saved.date)]))
+      setForm({ kg: '', date: today })
+      setFlash(replaced ? `Updated your weight for ${formatDate(saved.date)}.` : `Saved ${saved.kg} kg.`)
+    })
   }
 
   function remove(entry) {
     if (!window.confirm(`Delete ${entry.kg} kg on ${formatDate(entry.date)}?`)) return
-    setEntries(weightStore.remove(user.id, entry.id))
+    run(async () => {
+      await weightApi.remove(entry.id)
+      setData((list) => list.filter((x) => x.id !== entry.id))
+      setFlash(`Deleted ${entry.kg} kg on ${formatDate(entry.date)}.`)
+    })
   }
 
   return (
     <>
-      <PageHeader title="Weight tracking" subtitle="Saved on this device · One weigh-in per day." />
+      <PageHeader title="Weight tracking" subtitle="One weigh-in per day. Logging the same day again updates it." />
 
       <div className="stack">
         {flash && <Alert kind="success">{flash}</Alert>}
+        {actionError && <Alert>{actionError}</Alert>}
 
         <div className="stat-grid stat-grid--3">
           <Card className="stat stat--small">
@@ -84,7 +115,7 @@ export default function WeightPage() {
                     onChange={(e) => setForm({ ...form, date: e.target.value })} />
                 </Field>
               </div>
-              <button type="submit" className="btn btn--primary" style={{ alignSelf: 'flex-start' }}>
+              <button type="submit" className="btn btn--primary" style={{ alignSelf: 'flex-start' }} disabled={busy}>
                 <Icon name="plus" size={18} /> Save weight
               </button>
             </form>

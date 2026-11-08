@@ -1,15 +1,16 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import { gymApi } from '../api/gym'
 import { waterApi } from '../api/water'
+import { weightApi } from '../api/weight'
 import { workoutsApi } from '../api/workouts'
 import WeeklyActivity from '../components/WeeklyActivity'
 import { useAuth } from '../context/AuthContext'
 import { useAsync } from '../hooks/useAsync'
 import { Alert, Card, PageHeader, Spinner } from '../ui'
 import { formatDate, formatDuration, formatShort, fromISODate, startOfWeek, toISODate } from '../utils/dates'
-import { settingsStore, weightStore } from '../utils/localRecords'
+import { settingsStore } from '../utils/localRecords'
 import { waterOn } from '../utils/water'
 
 const QUICK_WATER = 250 // ml added by the "Add water" link
@@ -28,17 +29,18 @@ function pickTodaysWorkout(workouts, today) {
 
 async function loadDashboard() {
   const midnight = fromISODate(toISODate()) // start of today, local time
-  const [workouts, sessions, recent, waterToday, waterGoal] = await Promise.all([
+  const [workouts, sessions, recent, waterToday, waterGoal, weights] = await Promise.all([
     workoutsApi.list(),
     gymApi.history(),
     workoutsApi.history(5),
     waterApi.list(midnight),
     waterApi.getGoal(),
+    weightApi.list(1),
   ])
   // Exercise count per recent workout
   const counts = await Promise.all(recent.map((w) => workoutsApi.listExercises(w.id)))
   const recentRows = recent.map((w, i) => ({ ...w, exerciseCount: counts[i].length }))
-  return { workouts, sessions, recent: recentRows, waterToday, waterGoal }
+  return { workouts, sessions, recent: recentRows, waterToday, waterGoal, latestWeight: weights[0] }
 }
 
 export default function DashboardPage() {
@@ -46,14 +48,13 @@ export default function DashboardPage() {
   const { data, loading, error, reload, setData } = useAsync(loadDashboard, [])
   const [waterBusy, setWaterBusy] = useState(false)
   const [waterError, setWaterError] = useState('')
-  const weights = useMemo(() => weightStore.load(user.id), [user.id])
   const weeklyTarget = settingsStore.weeklyTarget(user.id)
 
   const today = toISODate()
   const waterToday = data ? waterOn(data.waterToday, today) : 0
   const waterGoal = data?.waterGoal || 3000
   const waterPct = Math.round((waterToday / waterGoal) * 100)
-  const latestWeight = weights[0]
+  const latestWeight = data?.latestWeight
 
   async function quickAddWater() {
     setWaterBusy(true)
