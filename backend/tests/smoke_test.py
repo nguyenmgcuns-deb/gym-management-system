@@ -15,7 +15,7 @@ import urllib.error
 import urllib.request
 
 BASE = os.getenv("API_URL", "http://127.0.0.1:8000")
-ALL_SECTIONS = ["crud", "exercises", "complete", "history", "gym", "ownership"]
+ALL_SECTIONS = ["crud", "exercises", "complete", "history", "gym", "ownership", "water", "weight"]
 FAILS = []
 
 
@@ -172,6 +172,56 @@ if "ownership" in sections:
     if bob_gym:
         FAILS.append("Bob sees Alice's gym sessions")
     call("POST", "/api/gym/check-out", token=A)
+
+# ---------- Water ----------
+if "water" in sections:
+    print("\n== Water ==")
+    g = check("default goal", "GET", "/api/water/goal", 200, token=A)
+    if g["daily_goal_ml"] != 3000:
+        FAILS.append("default goal")
+    check("set goal", "PUT", "/api/water/goal", 200, {"daily_goal_ml": 2500}, A)
+    check("goal too low", "PUT", "/api/water/goal", 422, {"daily_goal_ml": 100}, A)
+    if call("GET", "/api/water/goal", token=A)[1]["daily_goal_ml"] != 2500:
+        FAILS.append("goal saved")
+    log = check("add 250 ml", "POST", "/api/water", 201, {"amount_ml": 250}, A)
+    check("add 500 ml", "POST", "/api/water", 201, {"amount_ml": 500}, A)
+    check("add 0 ml", "POST", "/api/water", 422, {"amount_ml": 0}, A)
+    check("add 9000 ml", "POST", "/api/water", 422, {"amount_ml": 9000}, A)
+    logs = check("list", "GET", "/api/water", 200, token=A)
+    if len(logs) != 2 or logs[0]["amount_ml"] != 500:
+        FAILS.append("water list newest first")
+    future = check("list since future", "GET", "/api/water?since=2999-01-01T00:00:00Z", 200, token=A)
+    if future:
+        FAILS.append("since filter")
+    check("no token", "GET", "/api/water", 401)
+    # Ownership
+    check("Bob deletes Alice's log", "DELETE", f"/api/water/{log['id']}", 404, token=B)
+    if call("GET", "/api/water", token=B)[1]:
+        FAILS.append("Bob sees Alice's water")
+    if call("GET", "/api/water/goal", token=B)[1]["daily_goal_ml"] != 3000:
+        FAILS.append("Bob sees Alice's goal")
+    check("Alice deletes own log", "DELETE", f"/api/water/{log['id']}", 204, token=A)
+    check("delete again", "DELETE", f"/api/water/{log['id']}", 404, token=A)
+
+# ---------- Weight ----------
+if "weight" in sections:
+    print("\n== Weight ==")
+    first = check("add today", "POST", "/api/weight", 201, {"weight_kg": 75.5}, A)
+    check("add older day", "POST", "/api/weight", 201, {"weight_kg": 76.2, "date": "2026-01-10"}, A)
+    same = check("same day replaces (200)", "POST", "/api/weight", 200, {"weight_kg": 75.1}, A)
+    if same and same["id"] != first["id"]:
+        FAILS.append("same-day replace kept id")
+    check("too light", "POST", "/api/weight", 422, {"weight_kg": 5}, A)
+    check("future date", "POST", "/api/weight", 422, {"weight_kg": 70, "date": "2999-01-01"}, A)
+    entries = check("list", "GET", "/api/weight", 200, token=A)
+    if len(entries) != 2 or entries[0]["weight_kg"] != 75.1:
+        FAILS.append("weight list newest first")
+    check("no token", "GET", "/api/weight", 401)
+    # Ownership
+    check("Bob deletes Alice's entry", "DELETE", f"/api/weight/{first['id']}", 404, token=B)
+    if call("GET", "/api/weight", token=B)[1]:
+        FAILS.append("Bob sees Alice's weight")
+    check("Alice deletes own entry", "DELETE", f"/api/weight/{first['id']}", 204, token=A)
 
 print("\nRESULT:", "ALL PASSED" if not FAILS else f"{len(FAILS)} FAILED: {FAILS}")
 sys.exit(1 if FAILS else 0)
