@@ -2,9 +2,17 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.database import get_db
+from app.models.exercise import Exercise
 from app.models.user import User
 from app.models.workout import Workout
-from app.schemas.workout import WorkoutCreate, WorkoutResponse, WorkoutUpdate
+from app.models.workout_exercise import WorkoutExercise
+from app.schemas.workout import (
+    WorkoutCreate,
+    WorkoutExerciseCreate,
+    WorkoutExerciseResponse,
+    WorkoutResponse,
+    WorkoutUpdate,
+)
 from app.utils.dependencies import get_current_user
 
 router = APIRouter(prefix="/api/workouts", tags=["Workouts"])
@@ -91,3 +99,47 @@ def delete_workout(
     workout = get_own_workout(workout_id, db, current_user)
     db.delete(workout)
     db.commit()
+
+
+# ---------- Exercises inside a workout ----------
+@router.post(
+    "/{workout_id}/exercises",
+    response_model=WorkoutExerciseResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+def add_exercise_to_workout(
+    workout_id: int,
+    item_in: WorkoutExerciseCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Add one exercise (with sets, reps, weight) to the user's workout."""
+    workout = get_own_workout(workout_id, db, current_user)
+
+    if db.get(Exercise, item_in.exercise_id) is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Exercise not found",
+        )
+
+    item = WorkoutExercise(**item_in.model_dump(), workout_id=workout.id)
+    db.add(item)
+    db.commit()
+    db.refresh(item)
+    return item
+
+
+@router.get("/{workout_id}/exercises", response_model=list[WorkoutExerciseResponse])
+def list_workout_exercises(
+    workout_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """All exercises added to the user's workout, in the order they were added."""
+    workout = get_own_workout(workout_id, db, current_user)
+    return (
+        db.query(WorkoutExercise)
+        .filter(WorkoutExercise.workout_id == workout.id)
+        .order_by(WorkoutExercise.id)
+        .all()
+    )
